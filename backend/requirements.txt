@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# NeoFace Backend Requirements
+# Python 3.12
+# Pin all versions for reproducible builds
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+uvloop==0.21.0
+httptools==0.6.4
+python-multipart==0.0.12
+
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+alembic==1.14.0
+
+# ── Validation & Settings ─────────────────────────────────────────────────────
+pydantic==2.10.3
+pydantic-settings==2.6.1
+email-validator==2.2.0
+
+# ── Authentication ────────────────────────────────────────────────────────────
+python-jose[cryptography]==3.3.0
+bcrypt==4.2.1
+passlib[bcrypt]==1.7.4
+firebase-admin==6.6.0
+webauthn==2.1.0
+cbor2==5.6.5
+
+# ── Rate Limiting ─────────────────────────────────────────────────────────────
+slowapi==0.1.9
+
+# ── Redis & Caching ───────────────────────────────────────────────────────────
+redis[hiredis]==5.2.1
+
+# ── Async Tasks ───────────────────────────────────────────────────────────────
+celery[redis]==5.4.0
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+loguru==0.7.3
+
+# ── Computer Vision & AI ──────────────────────────────────────────────────────
+insightface==0.7.3
+onnxruntime==1.20.1
+opencv-python-headless==4.10.0.84
+mediapipe==0.10.18
+numpy==1.26.4
+
+# ── HTTP Client (tests & internal) ───────────────────────────────────────────
+httpx==0.27.2
+
+# ── AWS S3 (optional, for production storage) ────────────────────────────────
+boto3==1.35.80
+
+# ── Supabase (storage + auth integration) ─────────────────────────────────────
+supabase==2.10.0
+
+# ── Trust Engine v2 — ML Models ───────────────────────────────────────────────
+torch==2.5.1                   # PyTorch CPU — deepfake & depth models
+torchvision==0.20.1            # Image transforms for PyTorch models
+scikit-learn==1.5.2            # IsolationForest for behavioral biometrics
+xgboost==2.1.3                 # XGBoost (Phase 3 behavioral model)
+
+# ── AES-256-GCM Encryption ────────────────────────────────────────────────────
+cryptography==43.0.3           # AES-GCM encryption for sensitive fields
+
+# ── WebRTC Streaming ──────────────────────────────────────────────────────────
+aiortc==1.9.0                  # WebRTC streaming client & server for Python
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Development & Testing (install with: pip install -r requirements-dev.txt)
+# ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,225 @@
+##############################################################################
+# NeoFace Trust Engine — Docker Compose
+# Full production-ready stack with all microservices
+#
+# Services:
+#   api            — FastAPI main backend (face recognition + trust engine)
+#   worker         — Celery background worker (async tasks, continuous auth)
+#   redis          — Redis (Celery broker, challenge cache, session store)
+#   postgres       — PostgreSQL (primary data store — use Supabase in prod)
+#   flower         — Celery task monitoring UI (admin only)
+#
+# Usage:
+#   docker compose up -d                    # Start all services
+#   docker compose up -d --build            # Rebuild and start
+#   docker compose logs -f api              # Follow API logs
+#   docker compose exec api alembic upgrade head   # Run migrations
+##############################################################################
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: neoface_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: neoface_db
+      POSTGRES_USER: neoface
+      POSTGRES_PASSWORD: neoface_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neoface -d neoface_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - neoface_net
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: neoface_redis
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru", "--save", "60", "1000", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - neoface_net
+
+  # ── NeoFace API ─────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: neoface_api
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Database — LOCAL DEV OVERRIDE
+      DATABASE_URL: "${DATABASE_URL:-postgresql+asyncpg://neoface:neoface_pass@postgres:5432/neoface_db}"
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      # App
+      ENVIRONMENT: development
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      # Security — CHANGE THESE IN PRODUCTION
+      JWT_SECRET: "change-this-to-a-secure-random-64-char-secret-before-deploying"
+      # Model paths (mounted as volume)
+      ANTI_SPOOF_MODEL_PATH: /app/models/anti_spoof.onnx
+      MINIFASNET_V1_PATH: /app/models/MiniFASNetV1.onnx
+      MINIFASNET_V2_PATH: /app/models/MiniFASNetV2.onnx
+      EMOTION_MODEL_PATH: /app/models/emotion_mobilenetv3.onnx
+      MIDAS_SMALL_PATH: /app/models/midas_small.onnx
+      DPT_HYBRID_PATH: /app/models/dpt_hybrid.onnx
+      EFFICIENTNET_DEEPFAKE_PATH: /app/models/efficientnet_b4_deepfake.onnx
+      XCEPTIONNET_DEEPFAKE_PATH: /app/models/xceptionnet_deepfake.onnx
+      # CORS
+      ALLOWED_ORIGINS: '["http://localhost:3000","http://localhost:5173"]'
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/models:/app/models:ro  # ML model weights (read-only)
+      - ./backend/app:/app/app:ro      # Live code reload in dev
+      - ./backend/migrations:/app/migrations:ro
+      - ./backend/alembic.ini:/app/alembic.ini:ro
+      - api_logs:/app/logs
+      - api_storage:/app/storage
+      - insightface_cache:/app/.insightface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s           # Models take time to load
+    networks:
+      - neoface_net
+
+  # ── Celery Worker ───────────────────────────────────────────────────────────
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: neoface_worker
+    restart: unless-stopped
+    command: [
+      "celery", "-A", "app.tasks.celery_app", "worker",
+      "--loglevel=info",
+      "--concurrency=4",
+      "--queues=default,continuous_auth,cleanup",
+      "--max-tasks-per-child=100",
+    ]
+    env_file:
+      - ./backend/.env
+    environment:
+      # Database — LOCAL DEV OVERRIDE
+      DATABASE_URL: "${DATABASE_URL:-postgresql+asyncpg://neoface:neoface_pass@postgres:5432/neoface_db}"
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      LOG_LEVEL: INFO
+    volumes:
+      - ./backend/models:/app/models:ro
+      - api_logs:/app/logs
+      - insightface_cache:/app/.insightface
+    healthcheck:
+      test: ["NONE"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - neoface_net
+
+  # ── Celery Beat (Scheduler) ─────────────────────────────────────────────────
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: neoface_beat
+    restart: unless-stopped
+    command: [
+      "celery", "-A", "app.tasks.celery_app", "beat",
+      "--loglevel=info",
+      "--scheduler=celery.beat:PersistentScheduler",
+      "--schedule=/tmp/celerybeat-schedule",
+    ]
+    env_file:
+      - ./backend/.env
+    environment:
+      # Database — LOCAL DEV OVERRIDE
+      DATABASE_URL: "${DATABASE_URL:-postgresql+asyncpg://neoface:neoface_pass@postgres:5432/neoface_db}"
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["NONE"]
+    networks:
+      - neoface_net
+
+  # ── Flower (Celery Monitoring) ──────────────────────────────────────────────
+  flower:
+    image: mher/flower:2.0
+    container_name: neoface_flower
+    restart: unless-stopped
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/1
+      FLOWER_PORT: 5555
+      FLOWER_BASIC_AUTH: "admin:neoface_flower_pass"
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    networks:
+      - neoface_net
+
+# ── Volumes ────────────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  api_logs:
+    driver: local
+  api_storage:
+    driver: local
+  insightface_cache:
+    driver: local
+
+# ── Networks ───────────────────────────────────────────────────────────────────
+networks:
+  neoface_net:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: 2001:db8:1::/64

@@ -1,0 +1,46 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["app"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "S",   # bandit security
+    "N",   # pep8-naming
+]
+ignore = [
+    "S101",  # use of assert (tests)
+    "B008",  # function calls in default args (FastAPI Depends)
+    "S603",  # subprocess without shell (intentional)
+    "N818",  # Exception naming (EnrollmentError is fine)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app/tests/*" = ["S101", "S106", "S105"]  # Allow assert and hardcoded passwords in tests
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+ignore_missing_imports = true
+warn_return_any = false
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "app/tests/*",
+    "app/migrations/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80

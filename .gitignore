@@ -1,0 +1,86 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment
+!.env.example
+!frontend/.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+coverage_html/
+htmlcov/
+*.xml
+
+# Logs
+logs/
+*.log
+backend.log
+
+# Storage (local face images — never commit biometric data)
+storage/
+
+# InsightFace model cache
+.insightface/
+
+# Docker
+.docker/
+
+# Alembic
+migrations/versions/*.py
+!migrations/versions/.gitkeep
+
+# AI model weights (large binary files — store in cloud storage)
+backend/models/*.onnx
+backend/models/*.pt
+backend/models/*.pth
+backend/models/*.bin
+
+# Root-level models dir (legacy)
+models/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# NeoFace local script cache (used by start.sh to skip unnecessary rebuilds)
+.neoface-cache/
+
+# One-off dev & scratch files (should not be committed)
+scratch/
+update_logo.js
+frontend/replace_logos.py
+backend/app/divye_face.jpg
+backend/app/alter_tables.py
+backend/app/check_face_embeddings.py
+backend/app/extract_face.py
+backend/app/inspect_data.py
+backend/app/scratch_db_check.py
+backend/app/seed_bank_accounts.py
+backend/app/test_payment_auth.py
+backend/app/test_verification_db.py
