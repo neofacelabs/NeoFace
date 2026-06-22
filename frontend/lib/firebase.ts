@@ -3,13 +3,13 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC2NjpwDirHQIUW8PwuKu1kDss_GFecCWg",
-  authDomain: "neoface-payments.firebaseapp.com",
-  projectId: "neoface-payments",
-  storageBucket: "neoface-payments.firebasestorage.app",
-  messagingSenderId: "555226105345",
-  appId: "1:555226105345:web:ae8911de1d75632b64a200",
-  measurementId: "G-P3RN58JKTL",
+  apiKey: "AIzaSyBawjm-wP3rbxM4-XiBRAVU4evu9USQiDA",
+  authDomain: "neoface-labs.firebaseapp.com",
+  projectId: "neoface-labs",
+  storageBucket: "neoface-labs.firebasestorage.app",
+  messagingSenderId: "397627831854",
+  appId: "1:397627831854:web:7aa9bb4b64bed9dd1611bf",
+  measurementId: "G-362MZ4Y9T5",
 };
 
 // Prevent duplicate initialization in Next.js hot-reload

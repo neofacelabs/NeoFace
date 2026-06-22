@@ -82,7 +82,7 @@ class Settings(BaseSettings):
 
     # ─── Supabase ─────────────────────────────────────────────────────────────
     SUPABASE_URL: str = ""
-    SUPABASE_PROJECT_REF: str = "kejmjijkpvwjbgvoibjb"
+    SUPABASE_PROJECT_REF: str = "wrpxcyievqnniviarcln"
     SUPABASE_ANON_KEY: str = ""
     SUPABASE_SERVICE_KEY: str = ""
 
@@ -152,9 +152,9 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://localhost:5173",
-        # Production & Vercel preview deployments
+        # Production & Vercel deployments
+        "https://neofacelabs.vercel.app",
         "https://neoface.vercel.app",
-        "https://neoface-payments.vercel.app",
         "https://neoface-git-main-divyebhatnagar.vercel.app",
     ]
     # Additional origins can be added at runtime via this env var:
