@@ -26,8 +26,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "NeoFace" }],
   icons: {
-    icon: "/NeoFaceLogoFinal.png",
-    apple: "/NeoFaceLogoFinal.png",
+    icon: "/Favicon.png",
+    apple: "/Favicon.png",
+    shortcut: "/Favicon.png",
   },
   openGraph: {
     type: "website",
@@ -35,14 +36,14 @@ export const metadata: Metadata = {
     description:
       "Building the infrastructure where face, fingerprint, and iris intelligence power authentication, trust, and digital identity.",
     siteName: "NeoFace Labs",
-    images: [{ url: "/NeoFaceLogoFinal.png" }],
+    images: [{ url: "/Favicon.png", width: 512, height: 512, alt: "NeoFace Labs" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "NeoFace Labs — Biometric Authentication as a Service",
     description:
       "Building the infrastructure where face, fingerprint, and iris intelligence power authentication, trust, and digital identity.",
-    images: ["/NeoFaceLogoFinal.png"],
+    images: ["/Favicon.png"],
   },
   robots: { index: true, follow: true },
 };
