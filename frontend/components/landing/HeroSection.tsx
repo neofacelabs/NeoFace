@@ -95,7 +95,7 @@ export function HeroSection() {
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="mb-8"
             >
-              <Image src="/logo.png" alt="NeoFace Logo" width={320} height={96} className="h-30 w-auto object-contain" />
+              <Image src="/NeoFaceLogoFinal.png" alt="NeoFace Logo" width={320} height={96} className="h-30 w-auto object-contain" />
             </motion.div>
 
             {/* Badge */}

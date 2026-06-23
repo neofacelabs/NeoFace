@@ -67,7 +67,7 @@ export default function RegisterPage() {
         className="relative w-full max-w-[400px]"
       >
         <Link href="/" className="flex items-center justify-center gap-2.5 mb-10">
-          <Image src="/logo.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
+          <Image src="/NeoFaceLogoFinal.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
         </Link>
 
         <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] p-8">

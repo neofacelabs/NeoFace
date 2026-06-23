@@ -25,18 +25,24 @@ export const metadata: Metadata = {
     "identity layer",
   ],
   authors: [{ name: "NeoFace" }],
+  icons: {
+    icon: "/NeoFaceLogoFinal.png",
+    apple: "/NeoFaceLogoFinal.png",
+  },
   openGraph: {
     type: "website",
     title: "NeoFace Labs — Biometric Authentication as a Service",
     description:
       "Building the infrastructure where face, fingerprint, and iris intelligence power authentication, trust, and digital identity.",
     siteName: "NeoFace Labs",
+    images: [{ url: "/NeoFaceLogoFinal.png" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "NeoFace Labs — Biometric Authentication as a Service",
     description:
       "Building the infrastructure where face, fingerprint, and iris intelligence power authentication, trust, and digital identity.",
+    images: ["/NeoFaceLogoFinal.png"],
   },
   robots: { index: true, follow: true },
 };

@@ -199,7 +199,7 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-2.5 mb-8">
-          <Image src="/logo.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
+          <Image src="/NeoFaceLogoFinal.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
         </Link>
 
         {/* Backend offline banner */}

@@ -47,7 +47,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
-              <Image src="/logo.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
+              <Image src="/NeoFaceLogoFinal.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
             </motion.div>
           </Link>
 

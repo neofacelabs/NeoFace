@@ -205,7 +205,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <Link href="/" className="flex items-center gap-2 group">
           <Image
-            src="/logo.png" alt="NeoFace" width={120} height={36}
+            src="/NeoFaceLogoFinal.png" alt="NeoFace" width={120} height={36}
             className="h-7 w-auto object-contain"
             priority
           />
@@ -349,7 +349,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button onClick={() => setMobileOpen(true)}>
             <Menu size={18} className="text-[rgba(255,255,255,0.5)]" />
           </button>
-          <Image src="/logo.png" alt="NeoFace" width={100} height={30} className="h-6 w-auto" />
+          <Image src="/NeoFaceLogoFinal.png" alt="NeoFace" width={100} height={30} className="h-6 w-auto" />
         </div>
 
         <div className="flex-1 p-6 lg:p-8 page-in">

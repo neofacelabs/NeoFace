@@ -16,7 +16,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-5 group">
-              <Image src="/logo.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
+              <Image src="/NeoFaceLogoFinal.png" alt="NeoFace Logo" width={200} height={60} className="h-12 w-auto object-contain" />
             </Link>
             <p className="text-[13px] text-[rgba(255,255,255,0.3)] leading-[1.6] max-w-[200px]">
               Biometric Authentication Infrastructure for the next generation of apps.
