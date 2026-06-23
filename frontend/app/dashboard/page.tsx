@@ -647,7 +647,7 @@ function AdminDashboard() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-[22px] font-semibold text-white tracking-[-0.02em]">
-              NeoFace Cloud Operations
+              NeoFace Labs Operations
             </h1>
             <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold tracking-wider uppercase"
               style={{ background: "rgba(129,140,248,0.12)", border: "1px solid rgba(129,140,248,0.25)", color: "#818cf8" }}>

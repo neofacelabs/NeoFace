@@ -38,7 +38,14 @@ from app.api.v1 import (
     # Trust Engine v2
     liveness, emotion, headpose, deepfake, risk, device_trust, behavioral, continuous_auth,
     webrtc, trust_engine,
+    # AaaS
+    api_keys, identities, sessions, analytics, audit_logs, webhooks,
 )
+from app.api.admin import organizations as admin_orgs
+from app.api.admin import metrics as admin_metrics
+from app.api.admin import fraud as admin_fraud
+from app.api.admin import models as admin_models
+from app.api.admin import infrastructure as admin_infra
 from app.core.config import settings
 from app.core.database import close_db, init_db
 from app.core.logging import logger, setup_logging
@@ -167,27 +174,25 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
         description="""
-## NeoFace — Biometric Payment Infrastructure
+## NeoFace Labs — Authentication as a Service
 
-Production-grade API powering secure, password-free payments via biometric identity.
+Production-grade API powering biometric authentication infrastructure for developers and enterprises.
 
-### Payment Flow
-- **Enroll** — Register face, iris, and/or fingerprint biometrics
-- **Authorize** — Submit biometric proof to authorize a payment (multi-modal fusion)
-- **Settle** — Funds move from linked bank account to merchant
+### Core Capabilities
+- **Face Authentication** — ArcFace 512-d embedding + real-time liveness detection
+- **Identity Management** — Multi-tenant identity enrollment and verification
+- **Trust Engine** — Deepfake detection, behavioral biometrics, continuous auth
+- **Webhook Delivery** — HMAC-signed event streaming with automatic retry
 
-### Biometric Modalities
-- 🧑 **Face** — ArcFace 512-d embedding + MediaPipe liveness
-- 👁 **Iris** — Gabor IrisCode + masked Hamming Distance
-- 🖐 **Fingerprint** — ISO/IEC 19794-2 minutiae + MCC matching
-- 🔒 **Multi-Modal** — Score-level fusion with weighted combination
+### API Access
+All protected endpoints accept either:
+- `x-api-key` header for machine-to-machine (M2M) calls
+- `Authorization: Bearer <token>` for dashboard-authenticated users
 
-### Authentication
-All protected endpoints require a JWT Bearer token.
-Obtain a token via `POST /api/v1/auth/login`.
+Obtain a JWT via `POST /api/v1/auth/login`.
 
 ### Tech Stack
-InsightFace • ArcFace • MediaPipe • OpenCV • FastAPI • PostgreSQL • Supabase
+InsightFace • ArcFace • MediaPipe • FastAPI • PostgreSQL • Redis • Celery
         """,
         version=settings.APP_VERSION,
         docs_url="/docs",
@@ -214,7 +219,7 @@ InsightFace • ArcFace • MediaPipe • OpenCV • FastAPI • PostgreSQL • 
         allow_origins=settings.ALLOWED_ORIGINS,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID", "x-api-key"],
     )
 
     # GZip compression for responses > 1KB
@@ -275,6 +280,22 @@ InsightFace • ArcFace • MediaPipe • OpenCV • FastAPI • PostgreSQL • 
     app.include_router(continuous_auth.router, prefix=API_PREFIX)
     app.include_router(webrtc.router, prefix=API_PREFIX)
     app.include_router(trust_engine.router, prefix=API_PREFIX)
+
+    # ── AaaS Routers (v1) ─────────────────────────────────────────────────────
+    app.include_router(api_keys.router, prefix=API_PREFIX)
+    app.include_router(identities.router, prefix=API_PREFIX)
+    app.include_router(sessions.router, prefix=API_PREFIX)
+    app.include_router(analytics.router, prefix=API_PREFIX)
+    app.include_router(audit_logs.router, prefix=API_PREFIX)
+    app.include_router(webhooks.router, prefix=API_PREFIX)
+
+    # ── Admin Routers ─────────────────────────────────────────────────────────
+    ADMIN_PREFIX = "/api/admin"
+    app.include_router(admin_orgs.router, prefix=ADMIN_PREFIX)
+    app.include_router(admin_metrics.router, prefix=ADMIN_PREFIX)
+    app.include_router(admin_fraud.router, prefix=ADMIN_PREFIX)
+    app.include_router(admin_models.router, prefix=ADMIN_PREFIX)
+    app.include_router(admin_infra.router, prefix=ADMIN_PREFIX)
 
     # ── Root health endpoint ──────────────────────────────────────────────────
     @app.get("/", tags=["Health"], summary="Root health check")

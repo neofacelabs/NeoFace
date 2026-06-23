@@ -613,7 +613,7 @@ export function PricingPage() {
               No credit card. No setup fee. Just your API key and you&apos;re live in minutes.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Link href="/enroll">
+              <Link href="/register">
                 <motion.button
                   whileHover={{ scale: 1.03, boxShadow: "0 0 40px rgba(0,229,168,0.3)" }}
                   whileTap={{ scale: 0.97 }}

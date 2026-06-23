@@ -118,7 +118,7 @@ export function FinalCTA() {
           transition={{ duration: 0.6, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
           className="flex items-center justify-center gap-3"
         >
-          <Link href="/enroll">
+          <Link href="/register">
             <motion.button
               whileHover={{ scale: 1.04, boxShadow: "0 0 52px rgba(0,229,168,0.22)" }}
               whileTap={{ scale: 0.97 }}

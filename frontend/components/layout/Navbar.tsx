@@ -89,7 +89,7 @@ export function Navbar() {
                     Log in
                   </button>
                 </Link>
-                <Link href="/enroll">
+                <Link href="/register">
                   <motion.button
                     whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(0,229,168,0.3)" }}
                     whileTap={{ scale: 0.98 }}
@@ -144,7 +144,7 @@ export function Navbar() {
                     Log in
                   </button>
                 </Link>
-                <Link href="/enroll" onClick={() => setOpen(false)}>
+                <Link href="/register" onClick={() => setOpen(false)}>
                   <button className="w-full py-2.5 text-sm rounded-xl font-semibold bg-[#00E5A8] text-black">
                     Get API Key
                   </button>

@@ -218,7 +218,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             border: isAdmin ? "1px solid rgba(129,140,248,0.2)" : "1px solid rgba(0,194,255,0.2)",
           }}
         >
-          {isAdmin ? "ADMIN" : "CLOUD"}
+          {isAdmin ? "ADMIN" : "LABS"}
         </div>
       </div>
 

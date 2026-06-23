@@ -163,7 +163,7 @@ export function HeroSection() {
               transition={{ duration: 0.7, delay: 0.58, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-wrap items-center gap-3 mb-9"
             >
-              <Link href="/enroll">
+              <Link href="/register">
                 <motion.button
                   whileHover={{ scale: 1.03, boxShadow: "0 0 32px rgba(0,229,168,0.35)" }}
                   whileTap={{ scale: 0.97 }}

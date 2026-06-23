@@ -9,8 +9,8 @@ import { NoiseOverlay } from "@/components/core/NoiseOverlay";
 
 export const metadata: Metadata = {
   title: {
-    default: "NeoFace — The Identity Layer For The Next Internet",
-    template: "%s | NeoFace",
+    default: "NeoFace Labs — Biometric Authentication as a Service",
+    template: "%s | NeoFace Labs",
   },
   description:
     "Building the infrastructure where face, fingerprint, and iris intelligence power authentication, trust, and digital identity.",
@@ -27,14 +27,14 @@ export const metadata: Metadata = {
   authors: [{ name: "NeoFace" }],
   openGraph: {
     type: "website",
-    title: "NeoFace — The Identity Layer For The Next Internet",
+    title: "NeoFace Labs — Biometric Authentication as a Service",
     description:
       "Building the infrastructure where face, fingerprint, and iris intelligence power authentication, trust, and digital identity.",
-    siteName: "NeoFace",
+    siteName: "NeoFace Labs",
   },
   twitter: {
     card: "summary_large_image",
-    title: "NeoFace — The Identity Layer For The Next Internet",
+    title: "NeoFace Labs — Biometric Authentication as a Service",
     description:
       "Building the infrastructure where face, fingerprint, and iris intelligence power authentication, trust, and digital identity.",
   },
