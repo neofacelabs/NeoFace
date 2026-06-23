@@ -73,15 +73,27 @@ def _build_engine() -> AsyncEngine:
       pool_timeout     — seconds to wait for a free connection before raising
       echo             — log all SQL statements in DEBUG mode only
     """
+    db_url = settings.DATABASE_URL
+
+    # asyncpg does NOT support the psycopg2-style ?sslmode= query parameter.
+    # SSL is configured via connect_args["ssl"] below instead.
+    # Strip all sslmode variants so asyncpg doesn't choke on them.
+    db_url = db_url.replace("?sslmode=require", "").replace("&sslmode=require", "")
+    db_url = db_url.replace("?sslmode=verify-full", "").replace("&sslmode=verify-full", "")
+    db_url = db_url.replace("?sslmode=disable", "").replace("&sslmode=disable", "")
+
+    is_supabase = "supabase.co" in db_url or "supabase.com" in db_url
+
     connect_args: dict[str, Any] = {
-        # Supabase requires SSL; asyncpg respects this via the DSN or connect_args
-        "ssl": "require" if "supabase.co" in settings.DATABASE_URL else "prefer",
-        # Statement timeout (ms) prevents runaway queries
-        "statement_cache_size": 0,  # Required when using PgBouncer in transaction mode
+        # Supabase (both direct and pooler) require SSL; asyncpg uses this natively
+        "ssl": "require" if is_supabase else "prefer",
+        # Required when using PgBouncer / Supabase Pooler in transaction mode
+        # (prepared statements are not supported across pooled connections)
+        "statement_cache_size": 0,
     }
 
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        db_url,
         pool_size=settings.DATABASE_POOL_SIZE,
         max_overflow=settings.DATABASE_MAX_OVERFLOW,
         pool_pre_ping=True,
@@ -166,13 +178,25 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 async def init_db() -> None:
     """
     Create all tables on startup (development / first-run convenience).
-    In production always use Alembic migrations instead.
+
+    In production, Alembic migrations have already created the schema, so this
+    function only ensures tables exist without dropping existing data.
+    CREATE EXTENSION requires superuser — skipped when using Supabase pooler.
     """
+    from app.core.config import settings as _s
+    is_production = _s.ENVIRONMENT in ("production", "staging")
+
     async with _get_engine().begin() as conn:
-        await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
-        await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "pgcrypto"'))
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("database.init_db: tables initialized")
+        if not is_production:
+            # Only attempt extension creation in dev (requires superuser)
+            try:
+                await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
+                await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "pgcrypto"'))
+            except Exception as e:
+                logger.warning(f"database.init_db: could not create extensions (non-fatal): {e}")
+        # checkfirst=True means it won't error if tables already exist
+        await conn.run_sync(lambda c: Base.metadata.create_all(c, checkfirst=True))
+    logger.info("database.init_db: schema verified")
 
 
 async def close_db() -> None:
