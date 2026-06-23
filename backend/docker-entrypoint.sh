@@ -13,6 +13,7 @@ cd /app
 export PYTHONPATH=/app
 
 echo "[entrypoint] PYTHONPATH=${PYTHONPATH}"
+echo "[entrypoint] DATABASE_URL host: $(echo "${DATABASE_URL}" | sed 's|.*@\([^/:]*\).*|\1|' 2>/dev/null || echo 'NOT SET')"
 echo "[entrypoint] Running Alembic migrations..."
 
 # Run alembic with PYTHONPATH explicitly in environment to be safe

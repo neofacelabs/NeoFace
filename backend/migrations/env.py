@@ -43,16 +43,39 @@ except Exception as _model_import_err:
 
 config = context.config
 
-# Override URL from application settings
-# Alembic migrations must use the synchronous psycopg2 driver.
-# The app uses asyncpg (+asyncpg), so we swap it out here.
-db_url = settings.DATABASE_URL
-# Swap async driver variants to psycopg2
-db_url = db_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+# ── Build the synchronous migration URL ───────────────────────────────────────
+# Read DATABASE_URL DIRECTLY from os.environ to bypass any pydantic-settings
+# caching / ordering issue. Falls back to settings as a last resort.
+_raw_url = (
+    os.environ.get("DATABASE_URL")
+    or os.environ.get("database_url")
+    or settings.DATABASE_URL
+)
+
+# Fail fast with a clear message instead of silently using localhost
+if "localhost" in _raw_url or "127.0.0.1" in _raw_url:
+    _host = _raw_url.split("@")[-1].split("/")[0] if "@" in _raw_url else _raw_url
+    print(
+        f"\n[alembic/env.py] ERROR: DATABASE_URL resolves to '{_host}'.\n"
+        "The DATABASE_URL environment variable is not set or is using the\n"
+        "development default. Set DATABASE_URL in Render → Environment Variables\n"
+        "to your Supabase connection string before running migrations.\n",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+# Swap async driver → sync psycopg2 for Alembic
+db_url = _raw_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
 db_url = db_url.replace("postgresql+aiopg://", "postgresql+psycopg2://")
-# Escape % for ConfigParser interpolation
+db_url = db_url.replace("postgres://", "postgresql+psycopg2://")  # Heroku-style
+
+# Escape % for ConfigParser interpolation (ConfigParser uses %% → %)
 safe_url = db_url.replace("%", "%%")
 config.set_main_option("sqlalchemy.url", safe_url)
+
+# Log the host we're connecting to (never log passwords)
+_db_host = db_url.split("@")[-1].split("/")[0] if "@" in db_url else "unknown"
+print(f"[alembic/env.py] Connecting to DB host: {_db_host}", file=sys.stderr)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
