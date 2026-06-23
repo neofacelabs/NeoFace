@@ -314,9 +314,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [time, setTime] = useState("");
 
+  const [hydrated, setHydrated] = useState(false);
+
+  // Wait for Zustand persist middleware to rehydrate from localStorage.
+  // Without this, isAuthenticated is `false` on the very first render
+  // even for a logged-in user, causing an immediate redirect to /login.
   useEffect(() => {
-    if (!isAuthenticated) router.push("/login");
-  }, [isAuthenticated, router]);
+    // useAuthStore.persist.hasHydrated() is true once rehydration is done.
+    if ((useAuthStore as any).persist?.hasHydrated()) {
+      setHydrated(true);
+    } else {
+      const unsub = (useAuthStore as any).persist?.onFinishHydration(() => {
+        setHydrated(true);
+      });
+      return () => unsub?.();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hydrated && !isAuthenticated) router.push("/login");
+  }, [hydrated, isAuthenticated, router]);
 
   // Live clock
   useEffect(() => {

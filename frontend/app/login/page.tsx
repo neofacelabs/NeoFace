@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -77,7 +77,14 @@ export default function LoginPage() {
   const [backendDown, setBackendDown] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
-  const { setTokens, setUser } = useAuthStore();
+  const { setTokens, setUser, isAuthenticated } = useAuthStore();
+
+  // If already logged in, skip the login page entirely
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   const {
     register, handleSubmit, setValue,

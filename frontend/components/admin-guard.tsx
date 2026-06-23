@@ -16,7 +16,7 @@
  */
 
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ShieldOff, ArrowLeft } from "lucide-react";
@@ -31,8 +31,22 @@ export function AdminGuard({ children }: AdminGuardProps) {
   const { isAdmin, isLoaded } = useRole();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const router = useRouter();
+  const [hydrated, setHydrated] = useState(false);
+
+  // Wait for Zustand persist to rehydrate before checking auth
+  useEffect(() => {
+    if ((useAuthStore as any).persist?.hasHydrated()) {
+      setHydrated(true);
+    } else {
+      const unsub = (useAuthStore as any).persist?.onFinishHydration(() => {
+        setHydrated(true);
+      });
+      return () => unsub?.();
+    }
+  }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     if (!isAuthenticated) {
       router.replace("/login");
       return;
@@ -41,10 +55,10 @@ export function AdminGuard({ children }: AdminGuardProps) {
       const timer = setTimeout(() => router.replace("/dashboard"), 1800);
       return () => clearTimeout(timer);
     }
-  }, [isAdmin, isLoaded, isAuthenticated, router]);
+  }, [hydrated, isAdmin, isLoaded, isAuthenticated, router]);
 
-  // Still loading user from store — show nothing to avoid flash
-  if (!isLoaded || !isAuthenticated) return null;
+  // Still hydrating or loading user from store — show nothing to avoid flash
+  if (!hydrated || !isLoaded || !isAuthenticated) return null;
 
   // Non-admin: show access denied screen
   if (!isAdmin) {

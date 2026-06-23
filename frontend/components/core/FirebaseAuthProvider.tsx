@@ -2,17 +2,18 @@
 /**
  * FirebaseAuthProvider
  * ---------------------
- * Runs once at the app root. It subscribes to Firebase's own persistent auth
- * state (survives page navigation, browser refresh, etc.) and keeps the Zustand
- * store in sync.
+ * Runs once at the app root. Subscribes to Firebase's persistent auth state
+ * and keeps the Zustand store in sync.
  *
- * Why this guarantees the user is never logged out on navigation:
- *   - Firebase stores the session in IndexedDB/localStorage under its own key.
- *   - onAuthStateChanged fires IMMEDIATELY on mount with the cached user before
- *     any network round-trip, so there is no "flash of logged-out" state.
- *   - Zustand's `persist` middleware restores `isAuthenticated` from localStorage
- *     for the NeoFace backend session.
- *   - Together they cover both: Google-authenticated users AND backend-only users.
+ * Fix for the "login loop" bug:
+ *   The original code read `isAuthenticated` from a stale closure in useEffect,
+ *   meaning the value was always `false` on the first render. Every time
+ *   onAuthStateChanged fired it would re-set tokens/user and trigger a
+ *   re-render, causing the dashboard guard to briefly see isAuthenticated=false
+ *   and redirect back to /login.
+ *
+ *   Solution: read live state via useAuthStore.getState() inside the callback
+ *   so we always get the current value, not the captured closure value.
  */
 
 import { useEffect } from "react";
@@ -39,39 +40,39 @@ export function FirebaseAuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { setFirebaseUser, setUser, setTokens, isAuthenticated } =
-    useAuthStore();
-
   useEffect(() => {
     const unsubscribe = subscribeToAuthState((fbUser) => {
+      // Always read fresh state via getState() — never rely on a closure value
+      // which would be stale and always appear as `false` on first mount.
+      const { isAuthenticated, setFirebaseUser, setUser, setTokens } =
+        useAuthStore.getState();
+
       if (fbUser) {
-        // User is signed in to Firebase (Google or any other provider)
+        // Sync the Firebase user reference regardless
         setFirebaseUser(fbUser);
 
-        // Only override the Zustand user/token if there is no pre-existing
-        // backend session. This avoids overwriting a backend-authed admin with
-        // a Google-only user object.
+        // Only set user/tokens if there's no existing backend session.
+        // This prevents overwriting a real backend JWT with a Firebase pseudo-token.
         if (!isAuthenticated) {
           const neoUser = buildUserFromFirebase(fbUser);
           setUser(neoUser);
-          // Use the Firebase UID as a pseudo-token so the auth-guard passes
-          setTokens(`firebase-${fbUser.uid}`, `firebase-refresh-${fbUser.uid}`);
-        } else {
-          // Backend session exists — just sync the firebase user reference
-          setFirebaseUser(fbUser);
+          // Use Firebase UID as a pseudo-token so auth guards pass
+          setTokens(
+            `firebase-${fbUser.uid}`,
+            `firebase-refresh-${fbUser.uid}`
+          );
         }
       } else {
-        // Firebase says no user — clear the firebase reference
-        // (but don't log out a backend-only user — they signed in via email/pw)
+        // Firebase signed out — clear the firebase user reference.
+        // Do NOT log out a backend-only session (they signed in via email/pw).
         setFirebaseUser(null);
       }
     });
 
     return () => unsubscribe();
-    // isAuthenticated intentionally omitted: the Firebase listener should only
-    // be subscribed once. Reading `isAuthenticated` inside the callback (closure)
-    // is safe because we only check it synchronously within the callback scope.
-  }, [setFirebaseUser, setUser, setTokens]);
+    // Empty deps: subscribe exactly once for the lifetime of the app.
+    // All state reads happen via getState() inside the callback.
+  }, []);
 
   return <>{children}</>;
 }
