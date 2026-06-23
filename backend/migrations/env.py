@@ -86,9 +86,13 @@ if "localhost" in _raw_url or "127.0.0.1" in _raw_url:
     sys.exit(1)
 
 # Swap async driver → sync psycopg2 for Alembic
+# Handle all common URL prefixes Supabase / Heroku / Railway use:
 db_url = _raw_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
 db_url = db_url.replace("postgresql+aiopg://", "postgresql+psycopg2://")
-db_url = db_url.replace("postgres://", "postgresql+psycopg2://")  # Heroku-style
+db_url = db_url.replace("postgres://", "postgresql+psycopg2://")   # Heroku-style
+# Supabase native format has no driver prefix — add psycopg2 explicitly
+if db_url.startswith("postgresql://"):
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 # Escape % for ConfigParser interpolation (ConfigParser uses %% → %)
 safe_url = db_url.replace("%", "%%")

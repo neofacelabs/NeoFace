@@ -21,7 +21,7 @@ services:
 
       # ── Database (Supabase) ───────────────────────────────────────────────────
       - key: DATABASE_URL
-        value: postgresql+asyncpg://postgres.wrpxcyievqnniviarcln:NeoFace%402026@aws-1-ap-south-1.pooler.supabase.com:5432/postgres
+        value: postgresql+asyncpg://postgres.wrpxcyievqnniviarcln:NeoFace%402026@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
       - key: DATABASE_POOL_SIZE
         value: "5"
       - key: DATABASE_MAX_OVERFLOW
