@@ -8,6 +8,7 @@
 :root {
   /* Backgrounds */
   --bg: #000000;
+  --bg-dash: #050505;
   --surface-1: rgba(255,255,255,0.025);
   --surface-2: rgba(255,255,255,0.045);
   --surface-3: rgba(255,255,255,0.07);
@@ -18,6 +19,7 @@
   --border-1: rgba(255,255,255,0.05);
   --border-2: rgba(255,255,255,0.09);
   --border-3: rgba(255,255,255,0.16);
+  --border-dash: rgba(255,255,255,0.065);
 
   /* Text */
   --text-primary:   #ffffff;
@@ -45,6 +47,152 @@
   --error:   #f87171;
   --warning: #fbbf24;
 }
+
+/* ── Dashboard-specific utilities ────────────────────────────────────────────── */
+
+/* Standard dashboard card */
+.dash-card {
+  position: relative;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.065);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.dash-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 16px; right: 16px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  pointer-events: none;
+}
+.dash-card:hover {
+  border-color: rgba(255,255,255,0.10);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* Accent-tinted card */
+.dash-card-accent {
+  background: rgba(0,194,255,0.025);
+  border: 1px solid rgba(0,194,255,0.12);
+}
+.dash-card-teal {
+  background: rgba(0,229,168,0.02);
+  border: 1px solid rgba(0,229,168,0.12);
+}
+
+/* KPI value typography */
+.kpi-value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.kpi-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.32);
+}
+
+/* Live status dot */
+.status-dot-live {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #00E5A8;
+  box-shadow: 0 0 6px #00E5A8;
+  animation: pulse-status 2s ease-in-out infinite;
+}
+.status-dot-warn {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fbbf24;
+  box-shadow: 0 0 6px #fbbf24;
+}
+.status-dot-error {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #f87171;
+  box-shadow: 0 0 6px #f87171;
+  animation: pulse-status 1.5s ease-in-out infinite;
+}
+
+/* Dashboard table */
+.dash-table { width: 100%; border-collapse: collapse; }
+.dash-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  border-bottom: 1px solid rgba(255,255,255,0.055);
+}
+.dash-table td {
+  padding: 11px 12px;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.65);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Sidebar nav item */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.38);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  text-decoration: none;
+  position: relative;
+}
+.nav-item:hover {
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.04);
+}
+.nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.09);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: #00C2FF;
+}
+
+/* Coming soon page shell */
+.coming-soon-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  gap: 16px;
+}
+
+@keyframes pulse-status {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.slide-in-left { animation: slide-in-left 0.35s cubic-bezier(0.16,1,0.3,1) both; }
 
 /* ── Base Reset ─────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

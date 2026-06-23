@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -360,8 +360,8 @@ function FeatureTable() {
         </thead>
         <tbody>
           {FEATURE_TABLE.map((section, si) => (
-            <>
-              <tr key={section.category}>
+            <Fragment key={section.category}>
+              <tr>
                 <td
                   colSpan={5}
                   className="py-3 pt-7 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/25"
@@ -397,7 +397,7 @@ function FeatureTable() {
                   </td>
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
