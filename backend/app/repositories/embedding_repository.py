@@ -72,7 +72,15 @@ class EmbeddingRepository:
         from sqlalchemy import text
         import numpy as np
 
-        dialect = self.db.bind.dialect.name if self.db.bind else "postgresql"
+        # In SQLAlchemy 2.0 async, self.db.bind is removed.
+        # We detect the dialect by inspecting the engine URL via the connection.
+        try:
+            # get_bind() raises AttributeError on async sessions; use engine attribute instead
+            engine = self.db.get_bind()
+            dialect = engine.dialect.name
+        except Exception:
+            dialect = "postgresql"
+
         if dialect == "postgresql":
             # pgvector cosine similarity = 1.0 - (a <=> b)
             # Both sides must be cast to vector because embedding_vector is defined as ARRAY(Float) (double precision[])

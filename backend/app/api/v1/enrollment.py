@@ -223,7 +223,6 @@ async def delete_enrollment(
     # Update enrollment flag
     from sqlalchemy import update
     from app.models.user import User
-    from sqlalchemy import update
     await enrollment_service.db.execute(
         update(User)
         .where(User.id == user_id)

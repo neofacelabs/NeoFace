@@ -118,7 +118,7 @@ class S3StorageBackend(BaseStorageBackend):
     async def put(self, key: str, data: bytes) -> None:
         import asyncio
 
-        await asyncio.get_event_loop().run_in_executor(
+        await asyncio.get_running_loop().run_in_executor(
             None,
             lambda: self._client.put_object(
                 Bucket=self._bucket,
@@ -133,7 +133,7 @@ class S3StorageBackend(BaseStorageBackend):
         import asyncio
 
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
+            response = await asyncio.get_running_loop().run_in_executor(
                 None,
                 lambda: self._client.get_object(Bucket=self._bucket, Key=key),
             )
@@ -145,7 +145,7 @@ class S3StorageBackend(BaseStorageBackend):
         import asyncio
 
         try:
-            await asyncio.get_event_loop().run_in_executor(
+            await asyncio.get_running_loop().run_in_executor(
                 None,
                 lambda: self._client.delete_object(Bucket=self._bucket, Key=key),
             )
@@ -156,7 +156,7 @@ class S3StorageBackend(BaseStorageBackend):
     async def signed_url(self, key: str, expires_in: int = 3600) -> str:
         import asyncio
 
-        url: str = await asyncio.get_event_loop().run_in_executor(
+        url: str = await asyncio.get_running_loop().run_in_executor(
             None,
             lambda: self._client.generate_presigned_url(
                 "get_object",
@@ -204,7 +204,7 @@ class SupabaseStorageBackend(BaseStorageBackend):
         try:
             import asyncio
 
-            response: bytes = await asyncio.get_event_loop().run_in_executor(
+            response: bytes = await asyncio.get_running_loop().run_in_executor(
                 None,
                 lambda: self._service._storage().from_(self._default_bucket).download(key),
             )

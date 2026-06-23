@@ -48,16 +48,17 @@ from webauthn.helpers.structs import (
     UserVerificationRequirement,
 )
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import TokenData, get_current_user
 from app.repositories.credential_repository import CredentialRepository
 
 router = APIRouter(prefix="/webauthn", tags=["WebAuthn"])
 
-# ── Relying Party config ──────────────────────────────────────────────────────
-RP_ID = "localhost"
+# ── Relying Party config (read from env so production works correctly) ─────────
+RP_ID = settings.WEBAUTHN_RP_ID
 RP_NAME = "NeoFace"
-EXPECTED_ORIGIN = "http://localhost:3000"
+EXPECTED_ORIGIN = settings.WEBAUTHN_EXPECTED_ORIGIN
 
 # ── In-memory challenge store (use Redis in production) ───────────────────────
 _challenges: dict[str, bytes] = {}

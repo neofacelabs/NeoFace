@@ -77,6 +77,7 @@ COPY --chown=neoface:neoface .env.example .env.example
 
 # Startup entrypoint script (runs migrations then starts server)
 COPY --chown=neoface:neoface ./docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 # Create directories for storage and logs
 RUN mkdir -p /app/storage/faces /app/logs /app/.insightface /app/models \

@@ -100,7 +100,7 @@ class SupabaseStorageService:
         Run a synchronous callable in the default thread-pool executor so the
         async event loop is not blocked during network I/O.
         """
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
 
     def _validate_bucket(self, bucket: str) -> None:

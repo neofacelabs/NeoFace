@@ -7,7 +7,8 @@ PATCH /api/admin/organizations/{id}
 
 import uuid
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import status as http_status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -51,11 +52,10 @@ async def get_organization(
     _=Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> OrganizationDetail:
-    from fastapi import HTTPException
     repo = OrganizationRepository(db)
     org = await repo.get_by_id(org_id)
     if not org:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+        raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail="Organization not found")
 
     app_count = await repo.count_applications(org_id)
     identity_count = await repo.count_identities(org_id)
@@ -81,9 +81,8 @@ async def update_organization(
     _=Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> OrganizationResponse:
-    from fastapi import HTTPException
     repo = OrganizationRepository(db)
     org = await repo.update(org_id, schema)
     if not org:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+        raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail="Organization not found")
     return OrganizationResponse.model_validate(org)

@@ -148,6 +148,13 @@ class Settings(BaseSettings):
     CONTINUOUS_AUTH_REAUTH_THRESHOLD: float = 70.0
     CONTINUOUS_AUTH_CHECK_INTERVAL: int = 30  # seconds
 
+    # ─── WebAuthn ──────────────────────────────────────────────────────────────
+    # Must match the domain where the frontend is served (no port, no scheme).
+    # e.g. "neofacelabs.vercel.app" in production.
+    WEBAUTHN_RP_ID: str = "localhost"
+    # Must exactly match the origin reported by the browser during credential registration.
+    WEBAUTHN_EXPECTED_ORIGIN: str = "http://localhost:3000"
+
     # ─── CORS ─────────────────────────────────────────────────────────────────
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000",
