@@ -82,6 +82,19 @@ class FaceDetectorService:
         logger.info("Loading InsightFace model", model=settings.FACE_DETECTION_MODEL)
         try:
             import os
+            import warnings
+
+            # InsightFace internally probes CUDAExecutionProvider even in CPU mode
+            # (ctx_id=-1).  The provider is unavailable in this environment, which
+            # triggers a noisy-but-harmless UserWarning from onnxruntime.  Suppress
+            # it so logs stay clean.
+            os.environ.setdefault("ORT_LOGGING_LEVEL", "3")  # ERROR-only
+            warnings.filterwarnings(
+                "ignore",
+                message=".*CUDAExecutionProvider.*",
+                category=UserWarning,
+            )
+
             insightface_root = os.environ.get("INSIGHTFACE_HOME", os.path.expanduser("~/.insightface"))
             self._model = FaceAnalysis(
                 name=settings.FACE_DETECTION_MODEL,
